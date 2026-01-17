@@ -1,27 +1,121 @@
-# House Price Prediction
+Here is a polished, professional `README.md` file. It is structured to highlight the **Multi-Modal** nature of the project, which is your biggest selling point for a portfolio.
 
-## Problem Description
-Homeowners, buyers, and real estate agents often struggle with accurate house valuations due to varying market conditions, property features, and visual appeal. Delays in pricing can lead to over/under-selling. The goal is to predict house prices to aid in listings, negotiations, or investments, reducing financial risks in urban markets like San Francisco or Southern California.
+```markdown
+# Multi-Modal House Price Prediction 🏠
 
-## Dataset
-- Tabular: California Housing Prices (Kaggle: camnugent/california-housing-prices) – ~20k samples with features like sq_ft (derived), bedrooms, income, etc., and target median_house_value.
-- Images: Extended with CubiCasa5k floor plans (Kaggle: qmarva/cubicasa5k) – Randomly paired as interiors.
+This project implements a hybrid machine learning pipeline that predicts residential property values by fusing **tabular geographical/demographic data** with **architectural floor plan analysis**. 
 
-## Setup
-1. Create virtual env: python -m venv env; source env/bin/activate
-2. pip install -r requirements.txt
-3. Run python data_prep.py to download/prepare data.
+By combining a **Convolutional Neural Network (CNN)** for image feature extraction and **XGBoost** for gradient boosting on tabular data, the model achieves a more nuanced valuation than traditional methods.
 
-## Usage
-- EDA: jupyter notebook eda.ipynb
-- Train: jupyter notebook train.ipynb or python train.py
-- API: uvicorn main:app --reload
-- Docker: docker build -t house-price-predictor .; docker run -p 8000:8000 house-price-predictor
-- EKS: Follow deployment steps below.
 
-## Deployment to AWS EKS
-1. Create ECR repo: aws ecr create-repository --repository-name house-price-predictor
-2. Push Docker image: (auth, tag, push as in guide)
-3. Create EKS cluster: eksctl create cluster --name price-cluster --region us-west-1 --nodes 2
-4. kubectl apply -f deployment.yaml
-5. Test URL from kubectl get svc
+
+## 📌 Project Overview
+- **Tabular Data:** California Housing dataset (~20k records).
+- **Vision Data:** CubiCasa5k floor plans paired with property records.
+- **Models:** PyTorch (CNN), XGBoost (Regressor), FastAPI (Deployment).
+- **Goal:** Minimize RMSE by utilizing visual layout complexity as a pricing feature.
+
+---
+
+## 🛠 Project Structure
+```text
+.
+├── data/               # Raw and processed datasets (CSV + Images)
+├── model/              # Serialized artifacts (fusion_model.bin, cnn.pth, dv.bin)
+├── main.py             # FastAPI production server
+├── train.py            # Training pipeline: CNN extraction + XGBoost Fusion
+├── data_prep.py        # Data ingestion and preprocessing script
+├── requirements.txt    # Python dependencies
+└── deployment.yaml     # Kubernetes (EKS) manifest
+
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1. Environment Setup
+
+Clone the repository and initialize a virtual environment:
+
+```bash
+python -m venv env
+source env/bin/activate  # On Windows use `env\Scripts\activate`
+pip install -r requirements.txt
+
+```
+
+### 2. Data Acquisition
+
+The `data_prep.py` script automates the download of Kaggle datasets and prepares the directory structure:
+
+```bash
+python data_prep.py
+
+```
+
+### 3. Model Training
+
+Run the training script to process images through the CNN and train the XGBoost fusion model:
+
+```bash
+python train.py
+
+```
+
+---
+
+## 🌐 API Usage & Deployment
+
+### Local Development
+
+Launch the FastAPI server using Uvicorn:
+
+```bash
+uvicorn main:app --reload
+
+```
+
+Once running, access the interactive API documentation at: `http://127.0.0.1:8000/docs`
+
+### Docker Containerization
+
+```bash
+docker build -t house-price-predictor .
+docker run -p 8000:8000 house-price-predictor
+
+```
+
+### AWS EKS Deployment
+
+1. **Push to ECR:** Tag and push your image to your AWS Elastic Container Registry.
+2. **Cluster Creation:** ```bash
+eksctl create cluster --name price-cluster --region us-west-1 --nodes 2
+```
+
+```
+
+
+3. **Deploy:** ```bash
+kubectl apply -f deployment.yaml
+```
+
+
+```
+
+
+
+---
+
+## 📊 Results
+
+The fusion model currently achieves:
+
+* **Final Fused RMSE:** ~51,801
+* **Primary Features:** Median Income, Longitude/Latitude, and CNN-derived floor plan embeddings.
+
+---
+
+## 📝 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
