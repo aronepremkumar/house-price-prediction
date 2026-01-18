@@ -1,0 +1,17 @@
+# Ignore the massive dataset
+data/
+
+# Ignore local python environments
+env/
+venv/
+__pycache__/
+*.pyc
+
+# Ignore git and local IDE settings
+.git
+.gitignore
+.vscode/
+.idea/
+
+# Ignore local OS junk
+.DS_Store

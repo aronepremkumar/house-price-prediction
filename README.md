@@ -78,6 +78,22 @@ uvicorn main:app --reload
 
 Once running, access the interactive API documentation at: `http://127.0.0.1:8000/docs`
 
+Example API Call (cURL)
+Test the prediction endpoint from your terminal. Replace the image path with a valid local sample from your dataset:
+
+```
+curl --location 'http://localhost:8000/predict' \
+--form 'image=@"data/sample_floorplan.png"' \
+--form 'longitude="-122.23"' \
+--form 'latitude="37.88"' \
+--form 'housing_median_age="41.0"' \
+--form 'total_rooms="880.0"' \
+--form 'total_bedrooms="129.0"' \
+--form 'population="322.0"' \
+--form 'households="126.0"' \
+--form 'median_income="8.3252"'
+```
+
 ### Docker Containerization
 
 ```bash
