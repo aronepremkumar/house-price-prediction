@@ -28,9 +28,9 @@ class HouseDataset(Dataset):
     def __getitem__(self, idx):
         try:
             img = Image.open(self.paths[idx]).convert('RGB')
-        except Exception as e:
-            # Fallback for missing files: a black 200x200 image
-            img = Image.new('RGB', (200, 200), color='black')
+        except Exception:
+            # Fallback for missing or corrupt files
+            img = Image.new('RGB', (128, 128), color='black')
         
         if self.transform:
             img = self.transform(img)
@@ -47,6 +47,7 @@ class CNN(nn.Module):
             nn.MaxPool2d(2), # 64 -> 32
             nn.Flatten()
         )
+        # 32 channels * 32px * 32px = 32768 input features
         self.fc = nn.Linear(32 * 32 * 32, 64) 
         self.out = nn.Linear(64, 1)
 
@@ -81,6 +82,10 @@ def get_cnn_features(model, loader, device):
 
 # --- 4. Main Execution ---
 def main():
+    # Setup directory for saving models
+    if not os.path.exists('model'):
+        os.makedirs('model')
+
     # Load Data
     print("Loading data...")
     df = pd.read_csv('data/dataset.csv')
@@ -102,6 +107,7 @@ def main():
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
 
+    # shuffle=False is critical here so features align with X_train/X_val rows
     train_loader = DataLoader(HouseDataset(df_train, transform), batch_size=32, shuffle=False)
     val_loader = DataLoader(HouseDataset(df_val, transform), batch_size=32, shuffle=False)
 
@@ -137,12 +143,18 @@ def main():
     rmse = np.sqrt(mean_squared_error(y_val, y_pred))
     print(f'Final Fused RMSE: {rmse:.2f}')
 
-    # Save the models
-    if not os.path.exists('model'):
-        os.makedirs('model')
+    # --- 5. Save Artifacts ---
+    print("Saving models and vectorizer...")
+    # Save XGBoost Fusion Model
     joblib.dump(fused_model, 'model/fusion_model.bin')
+    
+    # Save DictVectorizer (Required for API to process new tabular data)
     joblib.dump(dv, 'model/dv.bin')
-    print("Models saved to model/ directory.")
+    
+    # Save CNN (Required for API to extract features from new images)
+    torch.save(cnn, 'model/cnn.pth')
+    
+    print("All artifacts saved to model/ directory.")
 
 if __name__ == "__main__":
     main()
