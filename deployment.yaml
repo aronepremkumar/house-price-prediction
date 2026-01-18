@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: house-price-app
+  labels:
+    app: house-price
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: house-price
+  template:
+    metadata:
+      labels:
+        app: house-price
+    spec:
+      containers:
+      - name: house-price
+        image: <your-account>.dkr.ecr.us-east-1.amazonaws.com/house-price-predictor:latest
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: house-price-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: house-price
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8000
